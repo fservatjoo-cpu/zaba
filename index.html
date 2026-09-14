@@ -744,7 +744,7 @@ function getGeminiKey() {
 function saveGeminiKey() {
   const input = document.getElementById('geminiApiKey');
   const key = (input?.value || '').trim();
-  if (!key) { alert('Please paste your Gemini API key.'); return; }
+  if (!key) { alert('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'); return; }
   localStorage.setItem('lingo_gemini_key', key);
   setAIStatus('Gemini key saved on this device.');
   generateAICycle(false);
