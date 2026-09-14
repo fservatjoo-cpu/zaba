@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LingoDaily — 5-Day Rotating AI English Teacher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+   .exit-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    background-color: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .exit-btn:active {
+    transform: scale(0.95);
+    background-color: #dc2626;
+  }
+  :root {
+    --ink: #151020;
+    --paper: #f5ecd8;
+    --paper-shade: #e9dcbe;
+    --paper-text: #2c2013;
+    --brass: #c99a3c;
+    --brass-bright: #e0b458;
+    --ribbon: #9c3b3f;
+    --green: #2d6a4f;
+    --muted: #a89a8a;
+    --muted-soft: #7d7466;
+    --radius-lg: 20px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Public Sans', sans-serif;
+    background: radial-gradient(circle at 50% 0%, rgba(201,154,60,0.16), transparent 55%), var(--ink);
+    color: var(--muted);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 26px 26px;
+    pointer-events: none; z-index: 0;
+  }
+  header {
+    width: 100%; max-width: 760px;
+    padding: 2.5rem 1.75rem 1rem;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 1;
+  }
+  .logo { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.5rem; color: #f5ecd8; }
+  .logo em { font-style: italic; color: var(--brass-bright); }
+  .day-count {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; letter-spacing: 0.08em;
+    color: var(--muted-soft); border: 1px solid rgba(201,154,60,0.35);
+    padding: 0.35rem 0.75rem; border-radius: 50px; background: rgba(0,0,0,0.2);
+  }
+  .hero-section { text-align: center; padding: 2rem 1.5rem 0.5rem; max-width: 600px; z-index: 1; }
+  .hero-eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--brass); margin-bottom: 1rem;
+  }
+  .hero-section h1 {
+    font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 600;
+    color: #f7efdd; margin: 0 0 1.1rem; line-height: 1.15;
+  }
+  .hero-section p { font-size: 1rem; line-height: 1.65; color: var(--muted); margin: 0 0 2rem; }
+  
+  .mode-tabs { display: flex; gap: 0.6rem; justify-content: center; margin-bottom: 1.8rem; flex-wrap: wrap; }
+  .mode-btn {
+    background: transparent; color: #f7efdd; font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem; font-weight: 500; padding: 0.9rem 1.4rem;
+    border: 1px solid rgba(201,154,60,0.4); border-radius: 50px;
+    cursor: pointer; transition: all 0.3s ease;
+  }
+  .mode-btn:hover { background: rgba(201,154,60,0.1); }
+  .mode-btn.active { background: var(--brass); color: #241a0d; border-color: var(--brass); font-weight: 600; }
+  .mode-btn.action { background: rgba(156,59,63,0.3); border-color: var(--ribbon); color: #f7efdd; }
+  .mode-btn.action:hover { background: var(--ribbon); }
+
+  .ribbon-wrap { position: relative; width: 100%; max-width: 640px; display: flex; justify-content: center; z-index: 1; height: 0; }
+  .ribbon {
+    width: 34px; background: linear-gradient(180deg, var(--ribbon), #7c2c2f); height: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 92%, 50% 100%, 0 92%);
+    transition: height 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+  }
+  .ribbon.visible { height: 64px; }
+  
+  .container {
+    max-width: 680px; width: 90%; background: var(--paper); color: var(--paper-text);
+    border-radius: var(--radius-lg); box-shadow: 0 30px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.06);
+    padding: 3rem 2.75rem; margin: 0 0 5rem;
+    display: none; opacity: 0; transform: translateY(24px); transform-origin: top center;
+    transition: all 0.7s cubic-bezier(0.16,1,0.3,1); position: relative; z-index: 1;
+  }
+  .container.visible { display: block; opacity: 1; transform: translateY(0); }
+  
+  .story-meta { display: flex; gap: 0.6rem; margin-bottom: 1.6rem; flex-wrap: wrap; }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace; background: rgba(44,32,19,0.06); color: #5c4a2d;
+    font-size: 0.72rem; font-weight: 500; padding: 0.3rem 0.8rem;
+    border-radius: 50px; border: 1px solid rgba(44,32,19,0.14);
+  }
+  .recap {
+    font-size: 0.9rem; font-style: italic; color: #6b5a3d; margin: -0.8rem 0 1.4rem;
+    padding-left: 0.9rem; border-left: 3px solid var(--brass);
+  }
+  .story-title { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 600; margin: 0 0 1.3rem; color: #241a0d; }
+  .story-text { line-height: 1.85; font-size: 1.1rem; margin-bottom: 2rem; color: #3a2c1a; user-select: text; cursor: pointer; }
+  
+  .divider { border: none; border-top: 1px dashed rgba(44,32,19,0.22); margin: 2.2rem 0; }
+  .section-title { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: #241a0d; margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem; }
+  .section-title .mark { color: var(--brass); }
+
+  .flags-strip {
+    display: flex; gap: 0.5rem; justify-content: flex-start; align-items: center;
+    margin-bottom: 1rem; flex-wrap: wrap; padding: 0.5rem 0.8rem;
+    background: rgba(44,32,19,0.04); border-radius: 50px; border: 1px solid rgba(44,32,19,0.12);
+  }
+  .flag-item {
+    width: 28px; height: 20px; border-radius: 4px; overflow: hidden;
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.15); transition: transform 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .flag-item:hover { transform: scale(1.15); }
+  .flag-item img { width: 100%; height: 100%; object-fit: cover; }
+
+  .story-reader-box { background: rgba(44,32,19,0.04); border: 1px solid rgba(44,32,19,0.12); border-radius: var(--radius-sm); padding: 1.2rem 1.4rem; margin-bottom: 1.5rem; }
+  .story-reader-controls { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 0.8rem; }
+  .reader-status { font-size: 0.85rem; color: #7d6b4a; margin-top: 0.6rem; font-style: italic; }
+  .full-translated-display { display: none; margin-top: 1rem; padding: 1rem; background: #fff; border-radius: 8px; border: 1px solid rgba(44,32,19,0.14); font-size: 1rem; line-height: 1.7; color: #241a0d; }
+  .full-translated-display.visible { display: block; }
+  .full-translated-display.rtl { direction: rtl; text-align: right; }
+  .full-translated-display.ltr { direction: ltr; text-align: left; }
+
+  .translator-box { background: rgba(44,32,19,0.04); border: 1px solid rgba(44,32,19,0.12); border-radius: var(--radius-sm); padding: 1.2rem 1.4rem; }
+  .lang-select {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; padding: 0.5rem 0.9rem;
+    border-radius: 50px; border: 1px solid rgba(44,32,19,0.22); background: #fff;
+    color: #3a2c1a; cursor: pointer;
+  }
+  .translate-hint { font-size: 0.85rem; color: #7d6b4a; margin: 0 0 0.8rem; }
+  .translate-input-wrap { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; margin-top: 0.8rem; }
+  .translate-input {
+    flex: 1; padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid rgba(44,32,19,0.22);
+    font-family: 'Public Sans', sans-serif; font-size: 0.95rem; color: #3a2c1a; background: #fff;
+  }
+  .translate-btn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; font-weight: 600;
+    background: var(--brass); color: #241a0d; border: none; border-radius: 8px;
+    padding: 0 1.2rem; cursor: pointer; transition: background 0.2s ease;
+  }
+  .translate-btn:hover { background: var(--brass-bright); }
+  .translate-output {
+    display: none; background: #fff; border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
+    border: 1px solid rgba(44,32,19,0.14); font-size: 1rem; color: #241a0d; margin-top: 0.5rem;
+  }
+  .translate-output.visible { display: block; }
+  .translate-output.rtl { direction: rtl; text-align: right; }
+  .translate-output.ltr { direction: ltr; text-align: left; }
+  .translate-output .orig { direction: ltr; text-align: left; display: block; font-size: 0.78rem; color: var(--muted-soft); margin-top: 0.5rem; font-family: 'IBM Plex Mono', monospace; }
+  
+  .translation-audio-bar { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.8rem; border-top: 1px dashed rgba(44,32,19,0.15); padding-top: 0.6rem; }
+  .ai-panel { max-width: 680px; width: 90%; margin: 0 auto 1.2rem; background: rgba(255,255,255,0.96); color: #241a0d; border: 1px solid rgba(44,32,19,0.16); border-radius: 14px; padding: 1rem 1.2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.14); }
+  .ai-panel summary { cursor: pointer; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+  .ai-row { display:flex; gap:.55rem; flex-wrap:wrap; align-items:center; margin-top:.8rem; }
+  .ai-key { flex:1; min-width:260px; padding:.65rem .8rem; border:1px solid rgba(44,32,19,.22); border-radius:8px; }
+  .ai-btn { padding:.65rem 1rem; border:0; border-radius:8px; background:var(--brass); color:#241a0d; font-weight:700; cursor:pointer; }
+  .ai-status { font-size:.82rem; color:#6b5a3d; margin-top:.65rem; }
+  .ai-note { font-size:.75rem; line-height:1.45; color:#7d6b4a; margin-top:.6rem; }
+
+  .vocab-grid { display: grid; gap: 0.75rem; }
+  .vocab-item { background: rgba(44,32,19,0.04); border-left: 3px solid var(--brass); padding: 0.85rem 1.1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+  .vocab-word { font-family: 'Fraunces', serif; font-weight: 600; color: #6b3f1d; margin-bottom: 0.2rem; display: block; font-size: 1.02rem; }
+  .vocab-definition { color: #5c4d38; font-size: 0.93rem; margin: 0; line-height: 1.5; }
+  
+  .question-box { background: rgba(156,59,63,0.06); border: 1px solid rgba(156,59,63,0.22); padding: 1.3rem 1.5rem; border-radius: var(--radius-sm); }
+  .question-box p { margin: 0; font-weight: 500; font-size: 1.05rem; color: #3a1518; font-family: 'Fraunces', serif; }
+  
+  .repeat-list { display: grid; gap: 0.9rem; }
+  .repeat-card { background: #fff; border: 1px solid rgba(44,32,19,0.14); border-radius: var(--radius-sm); padding: 1rem 1.2rem; }
+  .repeat-phrase { font-family: 'Fraunces', serif; font-size: 1.08rem; color: #241a0d; margin-bottom: 0.8rem; }
+  .repeat-controls { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
+  .rate-select { font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; padding: 0.5rem; border-radius: 50px; border: 1px solid rgba(44,32,19,0.25); background: #fff; }
+  .icon-btn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; font-weight: 500;
+    border: 1px solid rgba(44,32,19,0.25); background: #fff; color: #3a2c1a;
+    padding: 0.55rem 1rem; border-radius: 50px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s ease;
+  }
+  .icon-btn:hover { background: rgba(44,32,19,0.06); }
+  .icon-btn.listen { border-color: var(--brass); color: #6b3f1d; }
+  .icon-btn.record { border-color: var(--ribbon); color: var(--ribbon); }
+  .icon-btn.record.listening { background: var(--ribbon); color: #fff; }
+  .repeat-feedback { margin-top: 0.7rem; font-size: 0.9rem; }
+  .repeat-feedback.good { color: var(--green); font-weight: 600; }
+  .repeat-feedback.retry { color: var(--ribbon); font-weight: 600; }
+  .repeat-feedback .heard { color: var(--muted-soft); font-style: italic; font-weight: 400; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Lingo<em>Daily</em></div>
+  <div class="day-count" id="dayCount">EPISODE 01/10</div>
+</header>
+
+<div class="hero-section">
+  <div class="hero-eyebrow" id="cycleBadge">5-Day Story Rotation</div>
+  <h1>Master English,<br>one story at a time.</h1>
+  <p>Read true 10-episode continuous arcs and 5 distinct standalone stories. The continuing arc automatically changes every 5 days.</p>
+
+  <div class="mode-tabs">
+    <button class="mode-btn active" id="btnContinuing" onclick="switchMode('continuing')">📖 Continuing Arc (10 Ep)</button>
+    <button class="mode-btn" id="btnStandalone" onclick="switchMode('standalone')">✨ Standalone (5 Stories)</button>
+    <button class="mode-btn action" onclick="generateNextStory()">🔀 Next Story</button>
+  </div>
+</div>
+
+<details class="ai-panel">
+  <summary>🤖 AI Story Engine — unlimited new stories</summary>
+  <div class="ai-row">
+    <input id="geminiApiKey" class="ai-key" type="password" placeholder="Paste your Gemini API key here">
+    <button class="ai-btn" onclick="saveGeminiKey()">Save Key</button>
+    <button class="ai-btn" onclick="generateAICycle(true)">Generate New 5-Day Collection</button>
+  </div>
+  <div class="ai-status" id="aiStatus">Built-in stories work without AI. Add your Gemini key to let LingoDaily create a fresh 10-episode arc and 5 standalone stories for each 5-day cycle.</div>
+  <div class="ai-note">For a commercial app, do not ship a shared API key inside the HTML. Use a secure backend/serverless function and keep the key on the server.</div>
+</details>
+
+<div class="ribbon-wrap"><div class="ribbon" id="ribbon"></div></div>
+<div class="container" id="storyContainer"></div>
+
+<script>
+const languageMap = {
+  "fa": { name: "Farsi / Persian", code: "fa-IR", apiLang: "fa", dir: "rtl", flag: "ir" },
+  "es": { name: "Spanish", code: "es-ES", apiLang: "es", dir: "ltr", flag: "es" },
+  "de": { name: "German", code: "de-DE", apiLang: "de", dir: "ltr", flag: "de" },
+  "fr": { name: "French", code: "fr-FR", apiLang: "fr", dir: "ltr", flag: "fr" },
+  "it": { name: "Italian", code: "it-IT", apiLang: "it", dir: "ltr", flag: "it" },
+  "pt": { name: "Portuguese", code: "pt-PT", apiLang: "pt", dir: "ltr", flag: "pt" },
+  "ja": { name: "Japanese", code: "ja-JP", apiLang: "ja", dir: "ltr", flag: "jp" },
+  "tr": { name: "Turkish", code: "tr-TR", apiLang: "tr", dir: "ltr", flag: "tr" },
+  "ar": { name: "Arabic", code: "ar-SA", apiLang: "ar", dir: "rtl", flag: "sa" },
+  "zh": { name: "Chinese", code: "zh-CN", apiLang: "zh-CN", dir: "ltr", flag: "cn" }
+};
+
+// Safe progress restoration using LocalStorage
+let currentMode = localStorage.getItem('lingo_mode') || 'continuing';
+let continuingEpisodeIndex = parseInt(localStorage.getItem('lingo_arc_idx'), 10) || 1;
+let standaloneStoryIndex = parseInt(localStorage.getItem('lingo_standalone_idx'), 10) || 1;
+
+let currentEpisode = null;
+let readerPlaybackActive = false;
+let currentTranslationResult = "";
+
+function getCurrentFiveDayCycleIndex() {
+  const epoch = new Date(2026, 0, 1).getTime();
+  const now = new Date().getTime();
+  const diffDays = Math.floor((now - epoch) / (1000 * 60 * 60 * 24));
+  return Math.floor(diffDays / 5) + 1;
+}
+
+/* ---------------- ARC 1: THE MIDNIGHT BOOKMARK (10 EPISODES) ---------------- */
+const arc1Episodes = [
+  {
+    title: "1. The Midnight Bookmark",
+    recap: null,
+    text: "Mia hurried down the cobblestone alleyway, clutching her umbrella as a sharp drizzle began to fall. She was running late for her corporate job interview, and the navigation app on her phone had completely frozen. Just as she was about to turn back in frustration, a warm golden light spilled from a narrow doorway tucked between two historic brick buildings. A small carved sign read: The Midnight Bookmark. Seeking refuge from the wind, Mia pushed the heavy oak door open.",
+    vocab: [
+      { word: "Cobblestone", def: "Paved with small, rounded stones." },
+      { word: "Refuge", def: "A condition of being safe or sheltered from pursuit, danger, or trouble." },
+      { word: "Tucked", def: "Situated in a hidden or quiet place." }
+    ],
+    question: "Why did Mia enter the shop instead of heading straight to her interview?",
+    repeat: [
+      "Mia hurried down the cobblestone alleyway.",
+      "A warm golden light spilled from a narrow doorway.",
+      "Seeking refuge from the wind, Mia pushed the heavy door open.",
+      "She was running late for her corporate job interview.",
+      "A small carved sign read The Midnight Bookmark."
+    ]
+  },
+  {
+    title: "2. The Gentle Shopkeeper",
+    recap: "Episode 1: Mia escaped a sudden rainstorm by entering a hidden bookstore called The Midnight Bookmark.",
+    text: "The bookstore smelled faintly of old paper, vanilla, and dried lavender. An elderly man with silver spectacles stood behind an ornate wooden counter, carefully binding a leather manuscript. He looked up with a warm smile, showing no surprise at her sudden entrance. 'You are drenched, my dear,' he said gently, sliding a hot ceramic mug of spiced tea toward her. 'Rest a moment. The storm outside will pass, and right now, you are exactly where you belong.'",
+    vocab: [
+      { word: "Ornate", def: "Elaborately or sumptuously decorated." },
+      { word: "Drenched", def: "Completely wet; soaked through." },
+      { word: "Manuscript", def: "A book, document, or piece of music written by hand rather than typed." }
+    ],
+    question: "What did the shopkeeper offer Mia when she stepped inside?",
+    repeat: [
+      "The bookstore smelled faintly of old paper and lavender.",
+      "An elderly man with silver spectacles stood behind an ornate counter.",
+      "You are exactly where you belong.",
+      "He showed no surprise at her sudden entrance.",
+      "Sliding a hot ceramic mug of spiced tea toward her."
+    ]
+  },
+  {
+    title: "3. The Whispering Archives",
+    recap: "Episode 2: The shopkeeper Elias welcomed Mia with hot tea and made her feel at ease.",
+    text: "Introducing himself as Elias, the old man led Mia toward a towering archway at the back of the shop. Behind a heavy velvet curtain lay the Archives—a cathedral-like room filled with thousands of leather-bound volumes resting on iron shelves. As Mia stepped closer, she heard a soft, rhythmic rustling sound, like dry autumn leaves blowing in the wind. 'Don't be startled,' Elias whispered. 'These books retain the living echoes of the authors who penned them centuries ago.'",
+    vocab: [
+      { word: "Towering", def: "Extremely tall or prominent." },
+      { word: "Startled", def: "Feeling sudden shock or surprise." },
+      { word: "Retain", def: "To continue to have or hold onto something." }
+    ],
+    question: "What sound did Mia hear when she stepped through the velvet curtain into the Archives?",
+    repeat: [
+      "Behind a heavy velvet curtain lay the Archives.",
+      "As Mia stepped closer, she heard a soft rhythmic rustling sound.",
+      "These books retain the living echoes of their authors.",
+      "Thousands of leather-bound volumes rested on iron shelves.",
+      "Elias led Mia toward a towering archway."
+    ]
+  },
+  {
+    title: "4. The Choice",
+    recap: "Episode 3: Elias showed Mia the Archives, where ancient books rustled with living echoes.",
+    text: "Elias explained that his assistant of forty years had recently retired, leaving him unable to catalogue the flood of newly discovered texts. He offered Mia the position immediately: cataloguing rare records, interpreting archaic symbols, and welcoming lost travelers. Mia glanced at her phone—she had missed her corporate job interview hours ago. Looking at the tranquil sanctuary of the store, she realized she had no desire to return to corporate life.",
+    vocab: [
+      { word: "Catalogue", def: "To make a systematic list of items or documents." },
+      { word: "Archaic", def: "Very old or old-fashioned." },
+      { word: "Sanctuary", def: "A place of safety, quiet, and protection." }
+    ],
+    question: "Why did Mia decide to decline her corporate career path and work at the shop?",
+    repeat: [
+      "He offered Mia the position immediately.",
+      "Mia glanced at her phone and realized her interview was missed.",
+      "She had no desire to return to corporate life.",
+      "His assistant of forty years had recently retired.",
+      "She looked around at the tranquil sanctuary of the store."
+    ]
+  },
+  {
+    title: "5. The Locked Cipher",
+    recap: "Episode 4: Mia turned down her corporate interview and agreed to become Elias's new assistant.",
+    text: "On her first morning as an official employee, Elias handed Mia a bronze key and a compact, leather-bound diary locked with a brass dial. The cover bore no name, only a gold symbol depicting a bird wrapped in stars. 'This journal arrived by anonymous parcel yesterday morning,' Elias said gravely. 'The cipher on the lock is written in a forgotten maritime language. If anyone can decipher it, Mia, it is you.'",
+    vocab: [
+      { word: "Compact", def: "Neatly grouped or packed into a small space." },
+      { word: "Anonymous", def: "Not identified by name; unknown origin." },
+      { word: "Cipher", def: "A secret or disguised way of writing; a code." }
+    ],
+    question: "What was unusual about the leather journal Elias gave Mia on her first day?",
+    repeat: [
+      "Elias handed Mia a bronze key and a compact diary.",
+      "The cover bore a gold symbol depicting a bird wrapped in stars.",
+      "The cipher on the lock is written in a forgotten language.",
+      "This journal arrived by anonymous parcel yesterday morning.",
+      "If anyone can decipher it, Mia, it is you."
+    ]
+  },
+  {
+    title: "6. Deciphering the Map",
+    recap: "Episode 5: Elias gave Mia a locked diary written in an ancient maritime cipher.",
+    text: "Mia spent hours in the quiet corner of the shop examining the lock. Drawing upon her university background in linguistics, she identified repeating glyphs representing coastal tides. At sunset, the dial clicked open. Inside was not text, but an intricate, hand-painted navigational map of their own city, detailing hidden underground waterways beneath the historic harbor district.",
+    vocab: [
+      { word: "Linguistics", def: "The scientific study of language and its structure." },
+      { word: "Glyphs", def: "Hieroglyphic characters or carved symbols." },
+      { word: "Intricate", def: "Very complicated or detailed." }
+    ],
+    question: "What did Mia find inside the journal once she unlocked the cipher?",
+    repeat: [
+      "Mia spent hours examining the lock in the quiet corner.",
+      "At sunset, the dial clicked open.",
+      "Inside was a hand-painted navigational map detailing underground waterways.",
+      "She identified repeating glyphs representing coastal tides.",
+      "She used her university background in linguistics."
+    ]
+  },
+  {
+    title: "7. The Secret Beneath the Harbor",
+    recap: "Episode 6: Unlocking the diary revealed a secret map of subterranean waterways beneath the city.",
+    text: "Equipped with brass lanterns and heavy coats, Mia and Elias descended into a hidden stone cellar beneath the bookstore's floorboards. A flight of slippery granite steps led them directly down to an underground canal where water lapped quietly against ancient brick walls. Moored to an iron ring was a small wooden rowboat waiting in the shadows.",
+    vocab: [
+      { word: "Subterranean", def: "Existing or occurring underground." },
+      { word: "Descended", def: "Moved downward to a lower level." },
+      { word: "Moored", def: "Secured a boat or craft in place with ropes or anchors." }
+    ],
+    question: "How did Mia and Elias access the hidden subterranean canal?",
+    repeat: [
+      "They descended into a hidden stone cellar beneath the floorboards.",
+      "A flight of granite steps led them down to an underground canal.",
+      "Moored to an iron ring was a small wooden rowboat.",
+      "Equipped with brass lanterns and heavy coats.",
+      "Water lapped quietly against ancient brick walls."
+    ]
+  },
+  {
+    title: "8. The Forgotten Vault",
+    recap: "Episode 7: Guided by the map, Mia and Elias found a secret canal underneath the bookstore.",
+    text: "Rowing quietly through the arched subterranean tunnels, they followed the blue markings on the diary map. After twenty minutes, the waterway opened into a vast underground chamber carved into natural bedrock. In the center stood a stone pedestal holding an enormous glass sphere filled with glowing indigo liquid that illuminated the whole room.",
+    vocab: [
+      { word: "Bedrock", def: "Solid rock underlying loose deposits such as soil or gravel." },
+      { word: "Pedestal", def: "A base or support on which a statue or structure is mounted." },
+      { word: "Illuminated", def: "Lit up; brightened with light." }
+    ],
+    question: "What stood in the center of the underground stone chamber?",
+    repeat: [
+      "They rowed quietly through the arched subterranean tunnels.",
+      "The waterway opened into a vast chamber carved into rock.",
+      "A glass sphere filled with glowing indigo liquid illuminated the room.",
+      "They followed the blue markings on the diary map.",
+      "In the center stood a stone pedestal."
+    ]
+  },
+  {
+    title: "9. The Guardian's Memory",
+    recap: "Episode 8: They discovered a secret chamber housing a glowing glass sphere.",
+    text: "As Mia placed her palm near the surface of the sphere, gentle light washed over her hands. Images flashed across her mind: generations of scholars, keepers, and writers who had protected the city's lost histories for centuries. Elias smiled with deep emotion. 'The vault preserves the collective memory of our culture,' he revealed. 'And it chooses its new guardian when the time is right.'",
+    vocab: [
+      { word: "Preserves", def: "Maintains something in its original state or protects from harm." },
+      { word: "Collective", def: "Shared by or belonging to all members of a group." },
+      { word: "Guardian", def: "A defender, protector, or keeper of something valuable." }
+    ],
+    question: "What happened when Mia reached toward the glowing glass sphere?",
+    repeat: [
+      "Gentle light washed over her hands as she touched the sphere.",
+      "Images flashed of scholars who protected the city's history.",
+      "The vault preserves the collective memory of our culture.",
+      "Elias smiled with deep emotion.",
+      "It chooses its new guardian when the time is right."
+    ]
+  },
+  {
+    title: "10. A New Chapter Begins",
+    recap: "Episode 9: The glowing sphere revealed that Mia was chosen to protect the city's living history.",
+    text: "Returning to the warmth of the shop above as dawn broke, Mia felt a profound sense of purpose. She had started her day lost in the rain, looking for a corporate career she didn't want. Now, she was an integral part of an extraordinary legacy. Taking her place behind the desk next to Elias, she opened a clean ledger to record their journey, ready for whatever mystery arrived next.",
+    vocab: [
+      { word: "Profound", def: "Very deep, intense, or meaningful." },
+      { word: "Integral", def: "Necessary to make a whole complete; essential." },
+      { word: "Legacy", def: "Something handed down from an ancestor or predecessor." }
+    ],
+    question: "How did Mia feel about her life path at the conclusion of her journey?",
+    repeat: [
+      "As dawn broke, Mia felt a profound sense of purpose.",
+      "She was an integral part of an extraordinary legacy.",
+      "She opened a clean ledger, ready for whatever mystery arrived next.",
+      "Returning to the warmth of the shop above.",
+      "She took her place behind the desk next to Elias."
+    ]
+  }
+];
+
+/* ---------------- ARC 2: THE LOST OBSERVATORY (10 EPISODES) ---------------- */
+const arc2Episodes = [
+  {
+    title: "1. The Mountain Fog",
+    recap: null,
+    text: "Julian strapped his leather knapsack tightly around his shoulders as dense mountain fog rolled over the peak of Mt. Sterling. He had been hiking for six hours in search of an abandoned 19th-century astronomical observatory that had vanished from modern geographical maps. Just as night began to fall, the outline of a stone dome emerged through the thick white mist.",
+    vocab: [
+      { word: "Knapsack", def: "A sturdy bag carried on the back." },
+      { word: "Abandoned", def: "Left behind completely and no longer used." },
+      { word: "Emerging", def: "Becoming visible or apparent by coming out of view." }
+    ],
+    question: "What was Julian searching for on Mt. Sterling?",
+    repeat: [
+      "Julian strapped his leather knapsack tightly around his shoulders.",
+      "Dense mountain fog rolled over the peak of the mountain.",
+      "The outline of a stone dome emerged through the mist.",
+      "He had been hiking for six hours in search of an observatory.",
+      "It had vanished from modern geographical maps."
+    ]
+  },
+  {
+    title: "2. The Brass Telescope",
+    recap: "Episode 1: Julian climbed Mt. Sterling in heavy fog and discovered an abandoned observatory dome.",
+    text: "Prying open the rusted iron door, Julian stepped into the silent observatory tower. Dust motes floated in the moonlight shining through the cracked glass roof. At the center of the room stood a massive brass telescope pointing toward the northern sky. To Julian's shock, the glass lenses were impeccably clean and completely free of dust.",
+    vocab: [
+      { word: "Rusted", def: "Covered with reddish-brown oxide coating from metal exposure." },
+      { word: "Massive", def: "Large, heavy, and solid." },
+      { word: "Impeccably", def: "Flawlessly; in accordance with the highest standards." }
+    ],
+    question: "What surprised Julian when he examined the brass telescope?",
+    repeat: [
+      "Julian stepped into the silent observatory tower.",
+      "At the center stood a massive brass telescope.",
+      "The glass lenses were impeccably clean and free of dust.",
+      "Prying open the rusted iron door.",
+      "Dust motes floated in the moonlight."
+    ]
+  },
+  {
+    title: "3. Signals in the Dark",
+    recap: "Episode 2: Julian found a pristine, dust-free brass telescope inside the abandoned tower.",
+    text: "Leaning over the eyepiece, Julian peered into the night sky. Instead of distant stars, the lens projected precise constellation coordinates onto a rotating brass plate mounted at the base. As he turned the focus knob, a faint humming sound vibrated through the floorboards, and a series of glowing blue lines illuminated across the constellation wheel.",
+    vocab: [
+      { word: "Peered", def: "Looked keenly or difficulty at something." },
+      { word: "Coordinates", def: "A set of numbers or points used to specify a location." },
+      { word: "Vibrated", def: "Moved continuously and rapidly to and fro." }
+    ],
+    question: "What happened when Julian adjusted the telescope's focus knob?",
+    repeat: [
+      "Leaning over the eyepiece, Julian peered into the sky.",
+      "A faint humming sound vibrated through the floorboards.",
+      "Glowing blue lines illuminated across the constellation wheel.",
+      "The lens projected precise constellation coordinates.",
+      "Mounted at the base was a rotating brass plate."
+    ]
+  },
+  {
+    title: "4. The Scholar's Ledger",
+    recap: "Episode 3: Turning the focus knob activated a mechanical constellation wheel.",
+    text: "Beneath the telescope stand, Julian discovered a locked drawer. Using his pocket knife to slide the latch, he pulled out a thick notebook bound in dark green cloth. The pages belonged to Dr. Clara Vance, an astronomer who had disappeared from public record in 1894. Her final entry warned of a celestial alignment occurring once every century.",
+    vocab: [
+      { word: "Latch", def: "A metal bar with a catch used to fasten a door or drawer." },
+      { word: "Astronomer", def: "A scientist who studies stars, planets, and space." },
+      { word: "Alignment", def: "Arrangement in a straight line or correct relative positions." }
+    ],
+    question: "Whose notebook did Julian discover inside the locked drawer?",
+    repeat: [
+      "Julian discovered a locked drawer beneath the telescope.",
+      "The pages belonged to an astronomer who disappeared long ago.",
+      "Her final entry warned of a rare celestial alignment.",
+      "He used his pocket knife to slide the latch.",
+      "A thick notebook bound in dark green cloth."
+    ]
+  },
+  {
+    title: "5. The Star Map",
+    recap: "Episode 4: Julian found Dr. Clara Vance's 1894 notebook detailing a rare celestial alignment.",
+    text: "Studying Dr. Vance's diagrams, Julian realized the alignment described in the ledger was scheduled for that exact midnight. According to her notes, when three specific stars aligned with the peak of Mt. Sterling, the telescope would act as an optical projector, revealing a hidden map painted on the observatory floor.",
+    vocab: [
+      { word: "Diagrams", def: "Simplified drawings showing the structure or workings of something." },
+      { word: "Scheduled", def: "Planned to happen at a specific time." },
+      { word: "Optical", def: "Relating to sight, light, or visual instruments." }
+    ],
+    question: "What was expected to happen at midnight when the three stars aligned?",
+    repeat: [
+      "Julian realized the alignment was scheduled for that exact midnight.",
+      "The telescope would act as an optical projector.",
+      "Revealing a hidden map painted on the observatory floor.",
+      "Studying Dr. Vance's detailed diagrams.",
+      "Three specific stars aligned with the peak."
+    ]
+  },
+  {
+    title: "6. Midnight Alignment",
+    recap: "Episode 5: The ledger foretold that midnight's star alignment would project a hidden map.",
+    text: "As the clock on Julian's watch ticked to midnight, a beam of brilliant starlight concentrated through the primary lens. The light refracted into three bright beams, reflecting off mirrors around the room. Suddenly, intricate silver lines lit up across the stone floor, revealing an uncharted mountain pass leading deep into the valley.",
+    vocab: [
+      { word: "Concentrated", def: "Gathered together in high density or strength." },
+      { word: "Refracted", def: "Deflected light from a straight path through a lens or medium." },
+      { word: "Uncharted", def: "Not mapped or surveyed; unexplored." }
+    ],
+    question: "What did the starlight beam reveal across the stone floor?",
+    repeat: [
+      "A beam of brilliant starlight concentrated through the lens.",
+      "Intricate silver lines lit up across the stone floor.",
+      "Revealing an uncharted mountain pass into the valley.",
+      "The clock on Julian's watch ticked to midnight.",
+      "The light refracted into three bright beams."
+    ]
+  },
+  {
+    title: "7. Into the Valley",
+    recap: "Episode 6: At midnight, starlight projected a silver map showing an uncharted mountain pass.",
+    text: "Packing his gear, Julian stepped out of the observatory tower and followed the silver path outlined by the starlight map. The trail wound down steep granite cliffs into a sheltered, climate-controlled valley hidden between two jagged ridges, untouched by the winter cold outside.",
+    vocab: [
+      { word: "Sheltered", def: "Protected from bad weather, wind, or harm." },
+      { word: "Jagged", def: "Having rough, sharp, or irregular points." },
+      { word: "Untouched", def: "Not modified, damaged, or affected in any way." }
+    ],
+    question: "What kind of environment did Julian discover at the end of the pass?",
+    repeat: [
+      "Julian stepped out of the tower and followed the path.",
+      "The trail wound down steep granite cliffs into the valley.",
+      "A sheltered valley untouched by the winter cold outside.",
+      "Packing his gear carefully before leaving.",
+      "Hidden between two jagged ridges."
+    ]
+  },
+  {
+    title: "8. The Crystal Greenhouse",
+    recap: "Episode 7: Following the silver trail led Julian into a hidden, warm mountain valley.",
+    text: "Nestled in the center of the valley stood a towering greenhouse constructed entirely from iron beams and crystal panels. Inside, plant species thought to be extinct for centuries flourished under artificial light powered by geothermal water springs bubbling up from the earth below.",
+    vocab: [
+      { word: "Flourished", def: "Grew or developed in a healthy and vigorous way." },
+      { word: "Extinct", def: "Having no living members; died out." },
+      { word: "Geothermal", def: "Relating to or produced by the internal heat of the earth." }
+    ],
+    question: "How was the crystal greenhouse powered and warmed?",
+    repeat: [
+      "Nestled in the valley stood a towering greenhouse of crystal panels.",
+      "Plant species thought to be extinct flourished inside.",
+      "Powered by geothermal water springs bubbling up from the earth.",
+      "Constructed entirely from iron beams and crystal.",
+      "Flourishing under artificial light."
+    ]
+  },
+  {
+    title: "9. The Keeper of Plants",
+    recap: "Episode 8: Julian found a geothermal greenhouse preserving rare and extinct plant species.",
+    text: "Inside the main atrium, an elderly woman stepped forward holding a copper watering flask. She was Dr. Clara Vance's grand-niece, maintaining the botanical preserve established generations ago. 'The telescope above brings us scholars who are curious enough to follow the stars,' she said softly.",
+    vocab: [
+      { word: "Atrium", def: "A central, open space within a building." },
+      { word: "Botanical", def: "Relating to plants and plant life." },
+      { word: "Preserve", def: "A place set aside for protection and conservation." }
+    ],
+    question: "Who was maintaining the secret geothermal greenhouse?",
+    repeat: [
+      "An elderly woman stepped forward holding a copper flask.",
+      "She was maintaining the botanical preserve established long ago.",
+      "The telescope brings us scholars who follow the stars.",
+      "Inside the main atrium of the greenhouse.",
+      "She was Dr. Clara Vance's grand-niece."
+    ]
+  },
+  {
+    title: "10. Legacy of the Stars",
+    recap: "Episode 9: Julian met the guardian of the botanical sanctuary hidden in the valley.",
+    text: "Julian agreed to document the sanctuary's findings and share its scientific value with the world. Standing under the glass roof as morning light filled the greenhouse, he realized his journey had transformed from a simple mountain hike into a lifelong mission to protect nature and science.",
+    vocab: [
+      { word: "Document", def: "To record details of an event or process in writing or media." },
+      { word: "Transformed", def: "Made a thorough or dramatic change in form or character." },
+      { word: "Mission", def: "An important assignment or dedicated purpose in life." }
+    ],
+    question: "What mission did Julian decide to dedicate himself to at the end of his expedition?",
+    repeat: [
+      "Julian agreed to document the sanctuary's findings.",
+      "Morning light filled the crystal greenhouse.",
+      "His journey transformed into a lifelong mission to protect nature.",
+      "Sharing its scientific value with the world.",
+      "Standing under the glass roof as morning light filled the room."
+    ]
+  }
+];
+/* ---------------- 5 STANDALONE STORIES ---------------- */
+const standaloneLibrary = [
+  {
+    title: "The Bakery on Harbor Street",
+    text: "Every morning at 5:00 AM, Mateo opened his small coastal bakery to heat the stone ovens. The scent of warm cardamom buns and sourdough bread drifted across the misty docks, welcoming fishermen returning from night sea voyages. Though the work was physically demanding, Mateo took great pride in nourishing his community before the sun even rose.",
+    vocab: [
+      { word: "Drifted", def: "Carried slowly along by water or air." },
+      { word: "Demanding", def: "Requiring much skill, effort, or attention." },
+      { word: "Nourishing", def: "Providing substances necessary for growth, health, and good condition." }
+    ],
+    question: "Who were the first customers Mateo served every morning at the bakery?",
+    repeat: [
+      "Mateo opened his bakery to heat the stone ovens.",
+      "The scent of warm buns drifted across the misty docks.",
+      "He took great pride in nourishing his community.",
+      "Welcoming fishermen returning from night sea voyages.",
+      "Nourishing his community before the sun even rose."
+    ]
+  },
+  {
+    title: "The Clockmaker's Gift",
+    text: "In a narrow wooden workshop, Arthur repaired grandfather clocks that had stopped ticking decades ago. One afternoon, a young girl brought him a tarnished pocket watch that had belonged to her grandmother. Arthur spent three painstaking days replacing gears and polishing metal until the watch chimed a clear, melodic note once again.",
+    vocab: [
+      { word: "Tarnished", def: "Lost brightness or luster due to metal exposure." },
+      { word: "Painstaking", def: "Done with great care, effort, and thoroughness." },
+      { word: "Melodic", def: "Pleasing to hear; musical and harmonious." }
+    ],
+    question: "How long did Arthur spend working on the tarnished pocket watch?",
+    repeat: [
+      "Arthur repaired grandfather clocks in his narrow workshop.",
+      "A young girl brought him a tarnished pocket watch.",
+      "The watch chimed a clear melodic note once again.",
+      "Grandfather clocks that had stopped ticking decades ago.",
+      "Arthur spent three painstaking days replacing gears."
+    ]
+  },
+  {
+    title: "The Evening Express",
+    text: "Elena boarded the night train to Edinburgh carrying only a small suitcase and a sketchpad. As the city lights faded into rolling countryside hills, she began sketching portraits of her fellow passengers—a reading student, a resting violinist, and a sleepy conductor. By the time the train reached its destination, she had created a silent portrait of human connection.",
+    vocab: [
+      { word: "Destination", def: "The place to which someone or something is going." },
+      { word: "Fellow", def: "Sharing a particular feature or position with others." },
+      { word: "Connection", def: "A feeling of understanding or bond between people." }
+    ],
+    question: "What items did Elena carry with her on the train trip to Edinburgh?",
+    repeat: [
+      "Elena boarded the night train carrying a small suitcase.",
+      "She began sketching portraits of her fellow passengers.",
+      "She created a silent portrait of human connection.",
+      "As city lights faded into rolling countryside hills.",
+      "By the time the train reached its destination."
+    ]
+  },
+  {
+    title: "The Rain Garden",
+    text: "When heavy rains flooded the neighborhood courtyard, Sara decided to turn the muddy puddle into a community garden. She planted water-loving ferns, river rocks, and native wildflowers that absorbed excess rainwater. Within months, what used to be a messy mud pit became a vibrant green oasis for birds, butterflies, and neighbors.",
+    vocab: [
+      { word: "Absorbed", def: "Took in or soaked up energy, liquid, or substances." },
+      { word: "Vibrant", def: "Full of energy, color, and life." },
+      { word: "Oasis", def: "A pleasant, peaceful area or spot in the midst of chaos." }
+    ],
+    question: "How did Sara transform the neighborhood's flooded courtyard?",
+    repeat: [
+      "Sara decided to turn the muddy puddle into a garden.",
+      "She planted ferns, river rocks, and native wildflowers.",
+      "It became a vibrant green oasis for neighbors.",
+      "Heavy rains flooded the neighborhood courtyard.",
+      "Absorbing excess rainwater effectively."
+    ]
+  },
+  {
+    title: "The Violin in the Attic",
+    text: "While cleaning out his childhood home, David discovered a dusty velvet case hidden under wooden rafters. Inside lay a handcrafted violin crafted in 1920. Though he hadn't played in over fifteen years, David tuned the strings, rested the instrument against his shoulder, and played a soft melody that echoed warmly through the old house.",
+    vocab: [
+      { word: "Rafters", def: "Internal beams supporting a roof." },
+      { word: "Handcrafted", def: "Made skillfully by hand rather than mass-produced." },
+      { word: "Echoed", def: "Resounded or reflected sound off hard surfaces." }
+    ],
+    question: "Where did David find the handcrafted violin?",
+    repeat: [
+      "David discovered a dusty velvet case under wooden rafters.",
+      "Inside lay a violin crafted in 1920.",
+      "He played a soft melody that echoed through the house.",
+      "While cleaning out his childhood home.",
+      "Though he hadn't played in over fifteen years."
+    ]
+  }
+];
+
+const GEMINI_MODEL = 'gemini-3.8-flash';
+const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+function getGeminiKey() {
+  return localStorage.getItem('lingo_gemini_key') || '';
+}
+function saveGeminiKey() {
+  const input = document.getElementById('geminiApiKey');
+  const key = (input?.value || '').trim();
+  if (!key) { alert('Please paste your Gemini API key.'); return; }
+  localStorage.setItem('lingo_gemini_key', key);
+  setAIStatus('Gemini key saved on this device.');
+  generateAICycle(false);
+}
+function setAIStatus(msg) {
+  const el = document.getElementById('aiStatus');
+  if (el) el.textContent = msg;
+}
+function getAICache() {
+  try { return JSON.parse(localStorage.getItem('lingo_ai_cycles') || '{}'); } catch { return {}; }
+}
+function setAICache(cache) { localStorage.setItem('lingo_ai_cycles', JSON.stringify(cache)); }
+
+async function callGemini(prompt) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('No Gemini API key saved.');
+  const res = await fetch(GEMINI_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: 'application/json', temperature: 0.9, maxOutputTokens: 12000 }
+    })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error?.message || `Gemini request failed (${res.status})`);
+  const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '';
+  if (!text) throw new Error('Gemini returned no story content.');
+  return JSON.parse(text.replace(/^```json\s*|\s*```$/g, ''));
+}
+
+function normalizeGeneratedCollection(data) {
+  if (!data || !Array.isArray(data.continuing) || data.continuing.length < 10 || !Array.isArray(data.standalone) || data.standalone.length < 5) {
+    throw new Error('AI returned an incomplete story collection.');
+  }
+  const clean = (s, i, recap) => ({
+    title: String(s.title || `Story ${i+1}`),
+    recap: recap ? (s.recap ? String(s.recap) : null) : null,
+    text: String(s.text || ''),
+    vocab: Array.isArray(s.vocab) ? s.vocab.slice(0,3).map(v => ({word:String(v.word||''), def:String(v.def||'')})) : [],
+    question: String(s.question || 'What is the main idea of this story?'),
+    repeat: Array.isArray(s.repeat) ? s.repeat.slice(0,5).map(String) : []
+  });
+  return {
+    continuing: data.continuing.slice(0,10).map((s,i)=>clean(s,i,true)),
+    standalone: data.standalone.slice(0,5).map((s,i)=>clean(s,i,false))
+  };
+}
+
+async function generateAICycle(force=false) {
+  const key = getGeminiKey();
+  if (!key) {
+    setAIStatus('Add your Gemini API key first. Built-in stories will continue to work without AI.');
+    return false;
+  }
+  const cycle = getCurrentFiveDayCycleIndex();
+  const cache = getAICache();
+  if (!force && cache[cycle]) {
+    window.aiCycleData = cache[cycle];
+    loadCurrentStory();
+    setAIStatus(`AI collection for 5-day cycle ${cycle} is ready.`);
+    return true;
+  }
+  setAIStatus(`Creating a brand-new 10-episode arc and 5 standalone stories for cycle ${cycle}...`);
+  try {
+    const data = normalizeGeneratedCollection(await callGemini(`
+You are the story engine for LingoDaily, an American English learning app. Create a completely original collection for 5 days.
+Return ONLY valid JSON with exactly two arrays: continuing (10 objects) and standalone (5 objects).
+Each continuing object: title, recap, text, vocab (3 items with word and def), question, repeat (5 short sentences).
+Each standalone object: title, text, vocab (3 items with word and def), question, repeat (5 short sentences).
+The 10 continuing episodes must form ONE coherent story with recurring characters, clear continuity, and a satisfying progression.
+Stories should teach natural everyday American English at approximately B2 level, with useful expressions and phrasal verbs, but never sound like a textbook.
+Each story text should be 180-260 words. Avoid repeating plots, titles, or wording from previous cycles. Make this collection feel fresh and human.
+Do not include markdown or commentary outside the JSON.
+`));
+    cache[cycle] = data;
+    setAICache(cache);
+    window.aiCycleData = data;
+    continuingEpisodeIndex = 1;
+    standaloneStoryIndex = 1;
+    localStorage.setItem('lingo_cycle', String(cycle));
+    saveProgress();
+    loadCurrentStory();
+    setAIStatus(`Done. Cycle ${cycle} now has a new AI-generated 10-episode arc and 5 standalone stories.`);
+    return true;
+  } catch (err) {
+    console.error(err);
+    setAIStatus(`AI generation failed: ${err.message}`);
+    return false;
+  }
+}
+
+function getActiveArc() {
+  const cycle = getCurrentFiveDayCycleIndex();
+  const ai = getAICache()[cycle];
+  if (ai) return ai.continuing;
+  return getCurrentArc();
+}
+function getActiveStandalone() {
+  const cycle = getCurrentFiveDayCycleIndex();
+  const ai = getAICache()[cycle];
+  if (ai) return ai.standalone;
+  return getCurrentStandaloneCollection();
+}
+
+function saveProgress() {
+  localStorage.setItem('lingo_mode', currentMode);
+  localStorage.setItem('lingo_arc_idx', continuingEpisodeIndex);
+  localStorage.setItem('lingo_standalone_idx', standaloneStoryIndex);
+}
+
+// Add new 10-episode arcs here as you create them.
+// The app automatically moves to the next arc every 5 days.
+const storyArcs = [
+  arc1Episodes,
+  arc2Episodes
+  // Add future arcs here: arc3Episodes, arc4Episodes, arc5Episodes, ...
+];
+
+// Each item in this list is a complete set of 5 standalone stories.
+// Add standaloneLibrary2, standaloneLibrary3, etc. as you create them.
+const standaloneCollections = [
+  standaloneLibrary
+  // Add future collections here: standaloneLibrary2, standaloneLibrary3, ...
+];
+
+function getCurrentArc() {
+  const cycleIndex = getCurrentFiveDayCycleIndex();
+  return storyArcs[(cycleIndex - 1) % storyArcs.length];
+}
+
+function getCurrentStandaloneCollection() {
+  const cycleIndex = getCurrentFiveDayCycleIndex();
+  return standaloneCollections[(cycleIndex - 1) % standaloneCollections.length];
+}
+
+function getStoryData() {
+  const cycleIndex = getCurrentFiveDayCycleIndex();
+  const currentArc = getActiveArc();
+
+  if (currentMode === 'continuing') {
+    const epIndex = (continuingEpisodeIndex - 1) % 10;
+    const story = currentArc[epIndex];
+    return {
+      modeLabel: "10-EPISODE ARC",
+      badgeText: `EPISODE ${epIndex + 1} OF 10`,
+      headerText: `CYCLE ${cycleIndex} • EPISODE ${String(epIndex + 1).padStart(2, '0')}/10`,
+      title: story.title,
+      recap: story.recap,
+      text: story.text,
+      vocab: story.vocab,
+      question: story.question,
+      repeat: story.repeat
+    };
+  } else {
+    const currentStandaloneCollection = getActiveStandalone();
+    const storyIndex = (standaloneStoryIndex - 1) % currentStandaloneCollection.length;
+    const story = currentStandaloneCollection[storyIndex];
+    return {
+      modeLabel: "STANDALONE STORY",
+      badgeText: `STORY ${storyIndex + 1} OF ${currentStandaloneCollection.length}`,
+      headerText: `CYCLE ${cycleIndex} • STORY ${storyIndex + 1}/${currentStandaloneCollection.length}`,
+      title: story.title,
+      recap: null,
+      text: story.text,
+      vocab: story.vocab,
+      question: story.question,
+      repeat: story.repeat
+    };
+  }
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  saveProgress();
+  loadCurrentStory();
+}
+
+function generateNextStory() {
+  if (currentMode === 'continuing') {
+    continuingEpisodeIndex++;
+  } else {
+    standaloneStoryIndex = (standaloneStoryIndex % 5) + 1;
+  }
+  saveProgress();
+  loadCurrentStory();
+}
+
+function loadCurrentStory() {
+  stopFullStory();
+  document.getElementById('btnContinuing').classList.toggle('active', currentMode === 'continuing');
+  document.getElementById('btnStandalone').classList.toggle('active', currentMode === 'standalone');
+
+  const cycleNum = getCurrentFiveDayCycleIndex();
+  const lastCycle = parseInt(localStorage.getItem('lingo_cycle'), 10) || 0;
+  if (lastCycle !== cycleNum) {
+    continuingEpisodeIndex = 1;
+    standaloneStoryIndex = 1;
+    localStorage.setItem('lingo_cycle', String(cycleNum));
+    saveProgress();
+    if (getGeminiKey() && !getAICache()[cycleNum]) {
+      generateAICycle(false);
+      return;
+    }
+  }
+  document.getElementById('cycleBadge').textContent = `5-DAY STORY CYCLE #${cycleNum} • NEW AI COLLECTION EVERY 5 DAYS`;
+
+  const data = getStoryData();
+  document.getElementById('dayCount').textContent = data.headerText;
+  currentEpisode = data;
+
+  renderStory(data);
+
+  const ribbon = document.getElementById('ribbon');
+  const container = document.getElementById('storyContainer');
+  ribbon.classList.add('visible');
+  container.classList.remove('visible');
+  requestAnimationFrame(() => {
+    container.classList.add('visible');
+    setTimeout(() => container.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  });
+}
+
+function setTargetLanguage(code) {
+  const select = document.getElementById('langSelect');
+  if (select) {
+    select.value = code;
+    triggerTranslation();
+  }
+}
+
+function renderStory(ep) {
+  const container = document.getElementById('storyContainer');
+  const flagsHtml = Object.keys(languageMap).map(code => {
+    const lang = languageMap[code];
+    return `<div class="flag-item" title="${lang.name}" onclick="setTargetLanguage('${code}')">
+      <img src="https://flagcdn.com/w40/${lang.flag}.png" alt="${lang.name}">
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="story-meta">
+      <span class="badge">${ep.modeLabel}</span>
+      <span class="badge">${ep.badgeText}</span>
+    </div>
+    ${ep.recap ? `<div class="recap">${ep.recap}</div>` : ''}
+    <h2 class="story-title">${ep.title}</h2>
+    <div class="story-text" id="storyText">${ep.text}</div>
+
+    <div class="story-reader-box">
+      <h3 class="section-title" style="margin:0 0 0.6rem;"><span class="mark">🔊</span> Read &amp; Play Complete Story in Any Language</h3>
+      <select class="lang-select" id="storyAudioLang">
+        <option value="en">English (Original)</option>
+        ${Object.keys(languageMap).map(code => `<option value="${code}">${languageMap[code].name}</option>`).join('')}
+      </select>
+      <div class="story-reader-controls">
+        <select class="rate-select" id="fullStoryRate">
+          <option value="0.75">0.75x Speed</option>
+          <option value="0.9" selected>0.9x Speed</option>
+          <option value="1.0">1.0x Speed</option>
+        </select>
+        <button class="icon-btn listen" onclick="playFullStory()">▶ Read Entire Story</button>
+        <button class="icon-btn" onclick="pauseFullStory()">⏸ Pause</button>
+        <button class="icon-btn" onclick="resumeFullStory()">⏯ Resume</button>
+        <button class="icon-btn" onclick="stopFullStory()">⏹ Stop</button>
+      </div>
+      <div class="reader-status" id="readerStatus">Select a language above and click "Read Entire Story".</div>
+      <div class="full-translated-display" id="fullTranslatedDisplay"></div>
+    </div>
+
+    <hr class="divider">
+    <h3 class="section-title"><span class="mark">✦</span> Key vocabulary</h3>
+    <div class="vocab-grid">
+      ${ep.vocab.map(v => `
+        <div class="vocab-item">
+          <span class="vocab-word">${v.word}</span>
+          <p class="vocab-definition">${v.def}</p>
+        </div>`).join('')}
+    </div>
+
+    <hr class="divider">
+    <h3 class="section-title"><span class="mark">✦</span> Comprehension question</h3>
+    <div class="question-box"><p>${ep.question}</p></div>
+
+    <hr class="divider">
+    <h3 class="section-title"><span class="mark">✦</span> Dynamic Phrase &amp; Sentence Translator</h3>
+    
+    <div class="flags-strip">${flagsHtml}</div>
+
+    <div class="translator-box">
+      <p class="translate-hint">Highlight any phrase or sentence in the story above, or click a flag above:</p>
+      <select class="lang-select" id="langSelect" onchange="triggerTranslation()">
+        ${Object.keys(languageMap).map(code => `<option value="${code}">${languageMap[code].name}</option>`).join('')}
+      </select>
+      <div class="translate-input-wrap">
+        <input type="text" class="translate-input" id="translateInput" placeholder="Highlight text above or type a phrase here...">
+        <button class="translate-btn" onclick="triggerTranslation()">Translate</button>
+      </div>
+      <div class="translate-output" id="translateOutput"></div>
+    </div>
+
+    <hr class="divider">
+    <h3 class="section-title"><span class="mark">✦</span> Repeat after me</h3>
+    <div class="repeat-list" id="repeatList">
+      ${ep.repeat.map((phrase, i) => `
+        <div class="repeat-card">
+          <div class="repeat-phrase">"${phrase}"</div>
+          <div class="repeat-controls">
+            <select class="rate-select" id="rateSelect${i}">
+              <option value="0.75">0.75x Speed</option>
+              <option value="0.9" selected>0.9x Speed</option>
+              <option value="1.0">1.0x Speed</option>
+            </select>
+            <button class="icon-btn listen" onclick="speakPhrase(${i})">🔊 Listen</button>
+            <button class="icon-btn record" id="recordBtn${i}" onclick="recordAttempt(${i})">🎙️ Repeat it back</button>
+          </div>
+          <div class="repeat-feedback" id="feedback${i}"></div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  const storyEl = document.getElementById('storyText');
+  storyEl.addEventListener('mouseup', handleTextSelection);
+  storyEl.addEventListener('touchend', handleTextSelection);
+}
+
+/* ---------------- TRANSLATION & VOICE ENGINE ---------------- */
+function extractGoogleTranslation(data) {
+  if (!data || !data[0]) return null;
+  let fullText = "";
+  data[0].forEach(part => {
+    if (part && part[0]) fullText += part[0];
+  });
+  return fullText || null;
+}
+
+function fetchGoogleTranslationJSONP(text, targetApiLang) {
+  return new Promise((resolve) => {
+    const callbackName = '__lingoTranslate_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const script = document.createElement('script');
+    let finished = false;
+    const cleanup = () => {
+      if (script.parentNode) script.parentNode.removeChild(script);
+      try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+    };
+    const timer = setTimeout(() => {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      resolve(null);
+    }, 10000);
+
+    window[callbackName] = (data) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      const result = extractGoogleTranslation(data);
+      cleanup();
+      resolve(result);
+    };
+
+    script.onerror = () => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve(null);
+    };
+
+    script.src = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetApiLang)}&dt=t&q=${encodeURIComponent(text)}&callback=${callbackName}`;
+    document.head.appendChild(script);
+  });
+}
+
+async function fetchTranslation(text, targetLangKey) {
+  if (targetLangKey === 'en') return text;
+  const targetApiLang = languageMap[targetLangKey].apiLang;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+  // A local HTML file (file://) has an opaque browser origin and can be
+  // blocked by normal fetch/CORS rules. Use JSONP there so the desktop file
+  // can still translate without requiring a server or API key.
+  const isLocalFile = window.location.protocol === 'file:';
+
+  if (!isLocalFile) {
+    try {
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(targetApiLang)}&dt=t&q=${encodeURIComponent(text)}`;
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const data = await res.json();
+        const result = extractGoogleTranslation(data);
+        if (result) return result;
+      }
+    } catch (e) {
+      console.warn('Direct translation request failed; trying fallback.', e);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  // Fallback works for local file:// use and also protects the hosted app
+  // if the direct request is temporarily blocked.
+  const jsonpResult = await fetchGoogleTranslationJSONP(text, targetApiLang);
+  if (jsonpResult) return jsonpResult;
+
+  console.error('Translation failed for', targetLangKey);
+  return null;
+}
+
+function splitIntoSentences(text) {
+  return text.match(/[^.!?]+[.!?]+/g) || [text];
+}
+
+/* ---------------- NATURAL VOICE ENGINE ----------------
+   Uses the best natural-sounding voice available in the browser.
+   Chrome/Edge often provide Google or Microsoft neural/natural voices.
+   If a neural voice is unavailable, the browser falls back to its best local voice.
+--------------------------------------------------------------- */
+let cachedVoices = [];
+
+function refreshVoices() {
+  if ('speechSynthesis' in window) {
+    cachedVoices = window.speechSynthesis.getVoices() || [];
+  }
+}
+
+function voiceScore(voice, lang) {
+  const name = (voice.name || '').toLowerCase();
+  const vLang = (voice.lang || '').toLowerCase();
+  const wanted = (lang || '').toLowerCase();
+  let score = 0;
+
+  if (vLang === wanted) score += 100;
+  else if (vLang.startsWith(wanted.split('-')[0])) score += 60;
+
+  // Prefer modern natural/neural voices when the browser exposes them.
+  if (/natural|neural|online|premium/.test(name)) score += 45;
+  if (/microsoft/.test(name)) score += 35;
+  if (/google/.test(name)) score += 30;
+  if (/jenny|aria|guy|sara|ryan|christopher|ana|libby|samantha|alex/.test(name)) score += 20;
+  if (voice.localService === false) score += 15;
+
+  return score;
+}
+
+function getBestVoice(lang) {
+  refreshVoices();
+  if (!cachedVoices.length) return null;
+  return cachedVoices.slice().sort((a, b) => voiceScore(b, lang) - voiceScore(a, lang))[0] || null;
+}
+
+if ('speechSynthesis' in window) {
+  refreshVoices();
+  window.speechSynthesis.onvoiceschanged = refreshVoices;
+}
+
+function createNaturalUtterance(text, lang, rate) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = rate;
+  utter.pitch = 1.0;
+  const bestVoice = getBestVoice(lang);
+  if (bestVoice) {
+    utter.voice = bestVoice;
+    // Use the voice's exact locale when available.
+    utter.lang = bestVoice.lang || lang;
+  }
+  return utter;
+}
+
+async function playFullStory() {
+  if (!('speechSynthesis' in window)) return alert('Voice playback is not supported in this browser.');
+  stopFullStory();
+  readerPlaybackActive = true;
+
+  const status = document.getElementById('readerStatus');
+  const displayBox = document.getElementById('fullTranslatedDisplay');
+  const selectedLang = document.getElementById('storyAudioLang').value;
+  const selectedRate = parseFloat(document.getElementById('fullStoryRate').value) || 0.9;
+  const langConfig = languageMap[selectedLang] || { name: "English", code: "en-US", dir: "ltr" };
+
+  const sentences = splitIntoSentences(currentEpisode.text);
+  const translatedSentences = [];
+
+  displayBox.className = `full-translated-display visible ${langConfig.dir}`;
+  displayBox.innerHTML = `<em>Translating story...</em>`;
+  status.textContent = `Preparing full story in ${langConfig.name}...`;
+
+  for (let i = 0; i < sentences.length; i++) {
+    if (!readerPlaybackActive) return;
+    const cleanSentence = sentences[i].trim();
+    if (selectedLang === 'en') {
+      translatedSentences.push(cleanSentence);
+    } else {
+      const trans = await fetchTranslation(cleanSentence, selectedLang);
+      translatedSentences.push(trans || cleanSentence);
+    }
+  }
+
+  displayBox.textContent = translatedSentences.join(" ");
+  status.textContent = `Reading complete story in ${langConfig.name}...`;
+
+  let currentIdx = 0;
+  function speakNext() {
+    if (!readerPlaybackActive || currentIdx >= translatedSentences.length) {
+      status.textContent = `Finished reading the story.`;
+      readerPlaybackActive = false;
+      return;
+    }
+    const utter = createNaturalUtterance(translatedSentences[currentIdx], langConfig.code, selectedRate);
+    utter.onend = () => { currentIdx++; speakNext(); };
+    utter.onerror = () => { currentIdx++; speakNext(); };
+    window.speechSynthesis.speak(utter);
+  }
+  speakNext();
+}
+
+function pauseFullStory() {
+  if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+    window.speechSynthesis.pause();
+    document.getElementById('readerStatus').textContent = 'Playback paused.';
+  }
+}
+
+function resumeFullStory() {
+  if (window.speechSynthesis.paused) {
+    window.speechSynthesis.resume();
+    document.getElementById('readerStatus').textContent = 'Playback resumed.';
+  }
+}
+
+function stopFullStory() {
+  readerPlaybackActive = false;
+  window.speechSynthesis.cancel();
+  const status = document.getElementById('readerStatus');
+  if (status) status.textContent = 'Playback stopped.';
+}
+
+function handleTextSelection() {
+  setTimeout(() => {
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+    if (selectedText.length > 0) {
+      document.getElementById('translateInput').value = selectedText;
+      triggerTranslation();
+    }
+  }, 20);
+}
+
+async function triggerTranslation() {
+  const text = document.getElementById('translateInput').value.trim();
+  const targetLang = document.getElementById('langSelect').value;
+  const out = document.getElementById('translateOutput');
+  const langConfig = languageMap[targetLang] || { name: "English", code: "en-US", dir: "ltr" };
+
+  if (!text) return;
+  out.className = `translate-output visible ${langConfig.dir}`;
+  out.innerHTML = `<em>Translating...</em>`;
+
+  const translationResult = await fetchTranslation(text, targetLang);
+
+  if (translationResult) {
+    currentTranslationResult = translationResult;
+    out.innerHTML = `
+      <div>${translationResult}</div>
+      <span class="orig">English: "${text}"</span>
+      <div class="translation-audio-bar">
+        <select class="rate-select" id="transRateSelect">
+          <option value="0.75">0.75x Speed</option>
+          <option value="0.9" selected>0.9x Speed</option>
+          <option value="1.0">1.0x Speed</option>
+        </select>
+        <button class="icon-btn listen" onclick="speakTranslatedPhrase('${targetLang}')">🔊 Listen to ${langConfig.name}</button>
+      </div>
+    `;
+  } else {
+    out.className = `translate-output visible ${langConfig.dir}`;
+    out.innerHTML = `<em>Couldn't reach the translator — check your connection and tap Translate again.</em>`;
+  }
+}
+
+function speakTranslatedPhrase(targetLang) {
+  if (!('speechSynthesis' in window) || !currentTranslationResult) return;
+  window.speechSynthesis.cancel();
+
+  const langConfig = languageMap[targetLang] || { code: "en-US" };
+  const rateSelect = document.getElementById('transRateSelect');
+  const selectedRate = rateSelect ? parseFloat(rateSelect.value) : 0.9;
+
+  const utter = createNaturalUtterance(currentTranslationResult, langConfig.code, selectedRate);
+  window.speechSynthesis.speak(utter);
+}
+
+function speakPhrase(i){
+  stopFullStory();
+  if (!('speechSynthesis' in window)) return;
+  const phrase = currentEpisode.repeat[i];
+  const selectedRate = parseFloat(document.getElementById(`rateSelect${i}`).value) || 0.9;
+  const utter = createNaturalUtterance(phrase, 'en-US', selectedRate);
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+function normalize(str){
+  return str.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function similarity(a, b){
+  const aw = normalize(a).split(' ');
+  const bw = normalize(b).split(' ');
+  let matches = 0;
+  aw.forEach(w => { if (bw.includes(w)) matches++; });
+  return matches / Math.max(aw.length, 1);
+}
+
+function recordAttempt(i){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const feedback = document.getElementById('feedback' + i);
+  const btn = document.getElementById('recordBtn' + i);
+
+  if (!SpeechRecognition){
+    feedback.className = 'repeat-feedback retry';
+    feedback.textContent = 'Speech recognition isn\'t supported in this browser — try Chrome or Edge on desktop.';
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  btn.classList.add('listening');
+  btn.textContent = '🎙️ Listening...';
+  feedback.className = 'repeat-feedback';
+  feedback.textContent = '';
+
+  recognition.onresult = (event) => {
+    const heard = event.results[0][0].transcript;
+    const target = currentEpisode.repeat[i];
+    const score = similarity(heard, target);
+    if (score >= 0.7){
+      feedback.className = 'repeat-feedback good';
+      feedback.innerHTML = `✅ Nice! That was a strong match. <span class="heard">You said: "${heard}"</span>`;
+    } else {
+      feedback.className = 'repeat-feedback retry';
+      feedback.innerHTML = `↻ Close — try again. <span class="heard">You said: "${heard}"</span>`;
+    }
+  };
+
+  recognition.onerror = (event) => {
+    feedback.className = 'repeat-feedback retry';
+    feedback.textContent = 'Couldn\'t hear you clearly (' + event.error + '). Try again.';
+  };
+
+  recognition.onend = () => {
+    btn.classList.remove('listening');
+    btn.textContent = '🎙️ Repeat it back';
+  };
+
+  recognition.start();
+}
+
+const savedGeminiKey = getGeminiKey();
+if (savedGeminiKey) {
+  const keyInput = document.getElementById('geminiApiKey');
+  if (keyInput) keyInput.value = savedGeminiKey;
+}
+
+loadCurrentStory();
+</script>
+</body>
+</html>
